@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-#import keyring
+import keyring
+import configparser
+from common.functions import decript
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,10 +22,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'k%-m5t1a@z%97(z07skt2yz99%wnp5)!1zjv$*v^q(8ho*o#x)'
-
-# SECURITY WARNING: don't run with debug turned on in production!
+#SECURITY WARNING: keep the secret key used in production secret!
+cfg = configparser.ConfigParser()
+if not cfg.read([BASE_DIR + "/lls/config.cfg"]):
+    raise Exception("There is no configuration file for user settings")
+elif not(cfg.has_option('sct','usr') and cfg.has_option('sct','setting')) or not(cfg.has_option('lls','usr') and cfg.has_option('lls','setting')):
+    raise Exception("The configuration file has insufficient information")
+else:
+    SECRET_KEY = keyring.get_password(decript(cfg.get('sct','setting')),decript(cfg.get('sct','usr')))
+#SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -79,7 +86,7 @@ DATABASES = {
         'NAME': 'lls',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'django',
-        'PASSWORD': 'pimpum73',
+        'PASSWORD': keyring.get_password(decript(cfg.get('lls','setting')),decript(cfg.get('lls','usr'))),
     }
 }
 
