@@ -14,6 +14,7 @@ import os
 import keyring
 import configparser
 from common.functions import decript
+import logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -115,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
 
@@ -131,3 +132,39 @@ STATIC_URL = '/static/'
 
 LOGIN_REDIRECT_URL = '/'#URL to redirect user when it is authenticated
 LOGOUT_REDIRECT_URL = '/' #URL to redirect user when it logs out
+
+#LOGGER SETTINGS
+loggingConfigurationDict = {
+        'version': 1, #This is required by the logging.dectConfig() method
+        'loggers': {
+                'root':{
+                    'level': 'DEBUG' if DEBUG  else 'WARNING',
+                    'handlers': ['standardHandler']
+                    },
+                'navigator':{
+                        'level': 'DEBUG' if DEBUG  else 'WARNING',
+                        'handlers': ['standardHandler'],
+                        'propagate': False
+                    },
+            },
+        'handlers':{
+                'standardHandler': {
+                    'level': 'DEBUG' if DEBUG  else 'WARNING',
+                    'formatter': 'simpleFormatter',
+                    'class': 'logging.handlers.TimedRotatingFileHandler',
+                    "filename": os.path.join(BASE_DIR,'common/logs/log.txt'),
+                    'when': 'midnight',
+                    'encoding': 'utf-8'
+                    }
+            },
+        'formatters':{
+                'simpleFormatter':{
+                        'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        'datefmt': '%d/%b/%Y %I:%M %p'
+                    }
+            }
+    }
+logging.config.dictConfig(loggingConfigurationDict)
+
+log = logging.getLogger('navigator')
+log.info('Nuevo mensaje')
